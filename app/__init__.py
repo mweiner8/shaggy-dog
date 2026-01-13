@@ -72,6 +72,14 @@ def create_app(config_name: str | None = None) -> Flask:
     app.register_blueprint(auth.bp)
     app.register_blueprint(main.bp)
 
+    # Register template filters
+    from app.utils import image_bytes_to_base64
+
+    @app.template_filter('b64encode')
+    def b64encode_filter(data: bytes) -> str:
+        """Convert bytes to base64 string for template display."""
+        return image_bytes_to_base64(data)
+
     # Create database tables
     with app.app_context():
         db.create_all()

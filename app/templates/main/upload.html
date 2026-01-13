@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Photo - Shaggy Dog{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <h2 class="card-title text-center mb-4">
+                    <i class="fas fa-upload"></i> Upload Your Headshot
+                </h2>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Tips for best results:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Use a clear, well-lit photo of your face</li>
+                        <li>Face the camera directly</li>
+                        <li>Minimum size: 256x256 pixels</li>
+                        <li>Supported formats: JPG, PNG, WebP</li>
+                        <li>Maximum file size: 16MB</li>
+                    </ul>
+                </div>
+
+                <form method="POST" action="{{ url_for('main.upload') }}" enctype="multipart/form-data" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        <label for="image-upload" class="form-label">
+                            {{ form.image.label.text }}
+                        </label>
+                        <div class="input-group">
+                            {{ form.image(class="form-control" + (" is-invalid" if form.image.errors else ""),
+                                         id="image-upload",
+                                         accept="image/jpeg,image/png,image/webp") }}
+                            {% if form.image.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.image.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div class="mb-4" id="image-preview-container" style="display: none;">
+                        <label class="form-label">Preview:</label>
+                        <div class="text-center">
+                            <img id="image-preview" src="" alt="Preview" class="img-fluid rounded" style="max-height: 300px;">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Image preview functionality
+document.getElementById('image-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('image-preview').src = e.target.result;
+            document.getElementById('image-preview-container').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        document.getElementById('image-preview-container').style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

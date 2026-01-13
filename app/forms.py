@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import (
     DataRequired,
@@ -117,3 +118,25 @@ class LoginForm(FlaskForm):
     )
 
     submit = SubmitField('Login')
+
+
+class ImageUploadForm(FlaskForm):
+    """Image upload form for headshot photos.
+
+    Attributes:
+        image: File upload field with image validation
+        submit: Submit button
+    """
+
+    image = FileField(
+        'Upload Headshot',
+        validators=[
+            FileRequired(message='Please select an image file.'),
+            FileAllowed(
+                ['jpg', 'jpeg', 'png', 'webp'],
+                message='Only JPG, PNG, and WebP images are allowed.'
+            )
+        ]
+    )
+
+    submit = SubmitField('Transform to Dog!')
