@@ -1,79 +1,92 @@
-"""Create new tables for the Shaggy Dog project without affecting existing tables."""
+"""Initialize production database (run once after deployment)."""
 
 from __future__ import annotations
 
-from app import create_app, db
-from app.models import User, DogTransformation
+import os
 
 
-def create_shaggy_dog_tables() -> None:
-    """Create only the tables needed for Shaggy Dog project."""
-    app = create_app()
+def init_production_database() -> None:
+    """Initialize the production database on Render."""
+    from app import create_app, db
+    from app.models import User, DogTransformation
+
+    # Force production mode
+    os.environ['FLASK_ENV'] = 'production'
+
+    app = create_app('production')
 
     with app.app_context():
-        print("Checking existing tables...")
+        print("Initializing Production Database")
+        print("="*50)
+
+        # Get database URL
+        db_url = app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set')
+        print(f"Database: {db_url[:30]}...")
 
         # Get existing tables
         inspector = db.inspect(db.engine)
         existing_tables = inspector.get_table_names()
-        print(f"Existing tables in database: {existing_tables}")
 
-        print("\n" + "=" * 50)
-        print("Creating Shaggy Dog tables...")
-        print("=" * 50)
+        print(f"\nAll existing tables in database: {existing_tables}")
 
-        # Create only our specific tables
-        tables_to_create = ['dog_users', 'dog_transformations']
+        # Check if our specific tables exist
+        our_tables = ['dog_users', 'dog_transformations']
+        existing_our_tables = [t for t in our_tables if t in existing_tables]
 
-        for table_name in tables_to_create:
-            if table_name in existing_tables:
-                print(f"\n⚠ Table '{table_name}' already exists")
-                response = input(f"Drop and recreate '{table_name}'? (yes/no): ")
+        if existing_our_tables:
+            print(f"\nShaggy Dog tables found: {existing_our_tables}")
+            response = input("\nRecreate Shaggy Dog tables? (yes/no): ")
 
-                if response.lower() == 'yes':
-                    # Drop specific table
-                    if table_name == 'dog_users':
-                        User.__table__.drop(db.engine, checkfirst=True)
-                        print(f"✓ Dropped table '{table_name}'")
-                    elif table_name == 'dog_transformations':
-                        DogTransformation.__table__.drop(db.engine, checkfirst=True)
-                        print(f"✓ Dropped table '{table_name}'")
-                else:
-                    print(f"Skipping '{table_name}'")
-                    continue
+            if response.lower() != 'yes':
+                print("Database initialization cancelled.")
+                return
 
-        # Create the tables
-        print("\nCreating tables...")
+            print("\nDropping Shaggy Dog tables...")
+            # Drop in correct order (child tables first)
+            DogTransformation.__table__.drop(db.engine, checkfirst=True)
+            User.__table__.drop(db.engine, checkfirst=True)
+            print("✓ Dropped Shaggy Dog tables")
+
+        # Create our tables
+        print("\nCreating Shaggy Dog tables...")
         User.__table__.create(db.engine, checkfirst=True)
         print("✓ Created 'dog_users' table")
 
         DogTransformation.__table__.create(db.engine, checkfirst=True)
         print("✓ Created 'dog_transformations' table")
 
-        # Verify tables were created
-        print("\n" + "=" * 50)
-        print("Verifying table structure...")
-        print("=" * 50)
-
+        # Verify our tables
         inspector = db.inspect(db.engine)
 
+        print("\n" + "="*50)
+        print("Shaggy Dog Tables Structure:")
+        print("="*50)
+
         if 'dog_users' in inspector.get_table_names():
-            columns = [col['name'] for col in inspector.get_columns('dog_users')]
-            print(f"\n✓ 'dog_users' table structure:")
-            for col_info in inspector.get_columns('dog_users'):
-                print(f"  - {col_info['name']}: {col_info['type']}")
+            print(f"\n✓ dog_users")
+            columns = inspector.get_columns('dog_users')
+            for col in columns:
+                print(f"  - {col['name']}: {col['type']}")
 
         if 'dog_transformations' in inspector.get_table_names():
-            columns = [col['name'] for col in inspector.get_columns('dog_transformations')]
-            print(f"\n✓ 'dog_transformations' table structure:")
-            for col_info in inspector.get_columns('dog_transformations'):
-                print(f"  - {col_info['name']}: {col_info['type']}")
+            print(f"\n✓ dog_transformations")
+            columns = inspector.get_columns('dog_transformations')
+            for col in columns:
+                print(f"  - {col['name']}: {col['type']}")
 
-        print("\n" + "=" * 50)
-        print("Shaggy Dog tables created successfully!")
-        print("Other existing tables remain untouched.")
-        print("=" * 50)
+            # Show foreign keys
+            fks = inspector.get_foreign_keys('dog_transformations')
+            if fks:
+                print(f"\n  Foreign Keys:")
+                for fk in fks:
+                    print(f"    - {fk['constrained_columns']} → {fk['referred_table']}.{fk['referred_columns']}")
+
+        print("\n" + "="*50)
+        print("Production database initialized successfully!")
+        print("="*50)
+        print("\nIMPORTANT: Other tables in the database remain untouched.")
+        print("You can now use the Shaggy Dog application.")
 
 
 if __name__ == '__main__':
-    create_shaggy_dog_tables()
+    init_production_database()

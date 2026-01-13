@@ -104,8 +104,12 @@ class DogTransformation(db.Model):
         nullable=False
     )
 
-    # Relationships
-    user: Mapped['User'] = relationship('User', back_populates='transformations')
+    # Relationships - explicitly reference the User class
+    user: Mapped['User'] = relationship(
+        'User',
+        back_populates='transformations',
+        foreign_keys=[user_id]
+    )
 
     def __repr__(self) -> str:
         """String representation of DogTransformation."""

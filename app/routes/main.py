@@ -124,6 +124,11 @@ def run_transformation(user_id: int, image_bytes: bytes, upload_token: str) -> N
 
     with app.app_context():
         try:
+            # Verify user exists
+            user = db.session.get(User, user_id)
+            if not user:
+                raise Exception(f"User with ID {user_id} not found in database")
+
             # Define progress callback
             def update_progress(progress: int, message: str) -> None:
                 """Update the transformation progress."""
@@ -142,8 +147,7 @@ def run_transformation(user_id: int, image_bytes: bytes, upload_token: str) -> N
             # Update progress - saving
             update_progress(85, 'Saving your transformation...')
 
-            # Save to database
-            user = db.session.get(User, user_id)
+            # Create transformation object
             transformation = DogTransformation(
                 user_id=user_id,
                 original_image=image_bytes,
@@ -168,6 +172,15 @@ def run_transformation(user_id: int, image_bytes: bytes, upload_token: str) -> N
             temporary_images.pop(upload_token, None)
 
         except Exception as e:
+            # Log the full error for debugging
+            import traceback
+            print("="*50)
+            print("TRANSFORMATION ERROR:")
+            print(f"User ID: {user_id}")
+            print(f"Error: {str(e)}")
+            print(traceback.format_exc())
+            print("="*50)
+
             # Update progress - error
             transformation_progress[user_id] = {
                 'status': 'error',
