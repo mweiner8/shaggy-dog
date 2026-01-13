@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Gallery - Shaggy Dog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-images"></i> My Transformations
+        </h1>
+
+        {% if transformations %}
+            <div class="row">
+                {% for transformation in transformations %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ transformation.dog_breed }}</h5>
+                                <p class="text-muted small">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ transformation.created_at.strftime('%B %d, %Y') }}
+                                </p>
+                                <!-- Images will be displayed here in later stages -->
+                                <div class="alert alert-info">
+                                    Transformation preview coming soon!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                You haven't created any transformations yet.
+                <a href="{{ url_for('main.index') }}" class="alert-link">Upload your first photo!</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

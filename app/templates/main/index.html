@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Shaggy Dog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-paw"></i> Welcome to Shaggy Dog, {{ current_user.username }}!
+        </h1>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Transform Your Photo into a Dog</h5>
+                <p class="card-text">
+                    Upload a headshot and discover which dog breed you resemble most.
+                    Watch as AI creates a magical transformation from human to dog!
+                </p>
+                <a href="#" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Upload Photo
+                </a>
+                <a href="{{ url_for('main.gallery') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-images"></i> View Gallery
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-camera fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">1. Upload</h5>
+                        <p class="card-text">Upload a clear headshot photo</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-magic fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">2. Transform</h5>
+                        <p class="card-text">AI identifies your matching dog breed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-dog fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">3. Enjoy</h5>
+                        <p class="card-text">Watch the transformation come to life</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
